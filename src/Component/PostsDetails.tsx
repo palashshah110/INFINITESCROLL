@@ -33,7 +33,7 @@ class PostsDetails extends React.Component<null, StateTypes> {
   }
   componentDidMount(): void {
     this.getApiData(this.state.page);
-    // this.setIntervalForGetApiData();
+    this.setIntervalForGetApiData();
     // this.createObserver();
     window.addEventListener("scroll", this.handleScroll);
   }
