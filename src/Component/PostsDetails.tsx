@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 import {
   Typography,
   List,
@@ -20,14 +20,17 @@ interface StateTypes {
     _tags: string[];
   }[];
   page: number;
+  search:string;
   loading: boolean;
 }
 class PostsDetails extends React.Component<null, StateTypes> {
+  intervalId: NodeJS.Timeout;
   constructor(props: any) {
     super(props);
     this.state = {
       postsData: [],
       page: 0,
+      search:'',
       loading: false,
     };
   }
@@ -44,6 +47,7 @@ class PostsDetails extends React.Component<null, StateTypes> {
   getApiData = async (PN: number) => {
     try {
       this.setState({ loading: true });
+      clearInterval(this.intervalId);
       const response = await fetch(
         `https://hn.algolia.com/api/v1/search_by_date?tags=story&page=${PN}`
       );
@@ -54,17 +58,23 @@ class PostsDetails extends React.Component<null, StateTypes> {
         page: this.state.page + 1,
         loading: false,
       });
+      this.setIntervalForGetApiData();
     } catch (error) {
       this.setState({ loading: false });
     }
   };
   
   setIntervalForGetApiData = () => {
-    setInterval(() => {
+    clearInterval(this.intervalId);
+
+    this.intervalId = setInterval(() => {
       this.getApiData(this.state.page);
     }, 10000);
   };
 
+  handleChange =(event:ChangeEvent<HTMLInputElement>)=>{
+    this.setState({search:event.target.value})
+  }
   handleClick = (postUrl: string) => {
     window.open(postUrl, "_blank");
   };
@@ -99,6 +109,7 @@ class PostsDetails extends React.Component<null, StateTypes> {
   };
       
   render() {
+    const myapiData = this.state.postsData.filter((item)=>item.title.includes(this.state.search) || item.author.includes(this.state.search) );
     return (
       <Box
         component={"div"}
@@ -114,9 +125,10 @@ class PostsDetails extends React.Component<null, StateTypes> {
           Posts Details
         </Typography>
         <TextField
-          label="Search by title"
+          label="Search by title and author"
           variant="outlined"
           fullWidth
+          onChange={this.handleChange}
           sx={{ marginBottom: "20px", width: "90%", ml: 5 }}
         />
         <List
@@ -126,7 +138,7 @@ class PostsDetails extends React.Component<null, StateTypes> {
             maxHeight: "600px",
           }}
         >
-          {this.state.postsData?.map((post, idx) => {
+          {myapiData?.map((post, idx) => {
             const displayDate = new Date(post.created_at).toDateString();
             return (
               <React.Fragment key={idx}>
