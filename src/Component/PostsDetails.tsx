@@ -20,28 +20,24 @@ interface StateTypes {
     _tags: string[];
   }[];
   page: number;
-  search:string;
+  search: string;
   loading: boolean;
 }
 class PostsDetails extends React.Component<null, StateTypes> {
   intervalId: NodeJS.Timeout;
+  myRef: React.RefObject<any>;
   constructor(props: any) {
     super(props);
+    this.myRef = React.createRef();
     this.state = {
       postsData: [],
       page: 0,
-      search:'',
+      search: "",
       loading: false,
     };
   }
   componentDidMount(): void {
-    this.getApiData(this.state.page);
-    this.setIntervalForGetApiData();
-    // this.createObserver();
-    window.addEventListener("scroll", this.handleScroll);
-  }
-  componentWillUnmount(): void {
-    window.removeEventListener("scroll", this.handleScroll);
+    this.createObserver();
   }
 
   getApiData = async (PN: number) => {
@@ -58,13 +54,15 @@ class PostsDetails extends React.Component<null, StateTypes> {
         page: this.state.page + 1,
         loading: false,
       });
+      console.log(this.state.page);
       this.setIntervalForGetApiData();
     } catch (error) {
       this.setState({ loading: false });
     }
   };
-  
+
   setIntervalForGetApiData = () => {
+
     clearInterval(this.intervalId);
 
     this.intervalId = setInterval(() => {
@@ -72,44 +70,43 @@ class PostsDetails extends React.Component<null, StateTypes> {
     }, 10000);
   };
 
-  handleChange =(event:ChangeEvent<HTMLInputElement>)=>{
-    this.setState({search:event.target.value})
-  }
+  handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ search: event.target.value });
+  };
+
   handleClick = (postUrl: string) => {
     window.open(postUrl, "_blank");
   };
 
-  // createObserver = () => {
-  //   let observer:any;
-  //   let options = {
-  //     root: null,
-  //     rootMargin: "0px",
-  //     threshold: 1
-  //   };
-    
-  //   observer = new IntersectionObserver(this.handleIntersect, options);
-  //    console.log(observer);
-  // };
-  
-  
-  // handleIntersect = (entries:any, observer:any) => {
-  //   console.log('i am in it')
-  //   entries.map((entry:any) => console.log(entry));
-  // };
-
-  handleScroll = () => {
-    const { documentElement} = document;
-    const element = documentElement;
-
-    if (Math.abs(element.scrollHeight - element.clientHeight - element.scrollTop) <= 1) {
-      if (!this.state.loading) {
-        this.getApiData(this.state.page);
-      }
+  handleIntersect = (entries: any) => {
+    const firstEntry = entries[0];
+    if (firstEntry.isIntersecting && !this.state.loading) {
+      this.getApiData(this.state.page);
     }
   };
-      
+
+  createObserver = () => {
+    let observer = new IntersectionObserver(this.handleIntersect);
+    observer.observe(this.myRef.current);
+  };
+
+  // handleScroll = () => {
+  //   const { documentElement} = document;
+  //   const element = documentElement;
+
+  //   if (Math.abs(element.scrollHeight - element.clientHeight - element.scrollTop) <= 1) {
+  //     if (!this.state.loading) {
+  //       this.getApiData(this.state.page);
+  //     }
+  //   }
+  // };
+
   render() {
-    const myapiData = this.state.postsData.filter((item)=>item.title.includes(this.state.search) || item.author.includes(this.state.search) );
+    const myapiData = this.state.postsData.filter(
+      (item) =>
+        item.title.toLowerCase().includes(this.state.search.toLowerCase()) ||
+        item.author.toLowerCase().includes(this.state.search.toLowerCase())
+    );
     return (
       <Box
         component={"div"}
@@ -161,7 +158,8 @@ class PostsDetails extends React.Component<null, StateTypes> {
               </React.Fragment>
             );
           })}
-          {this.state.loading && <ListItem> Loading....</ListItem>}
+          {this.state.loading && <ListItem>Loading...</ListItem>}
+          <ListItem ref={this.myRef}>Content Loaded</ListItem>
         </List>
       </Box>
     );
