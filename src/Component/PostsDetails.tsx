@@ -33,8 +33,14 @@ class PostsDetails extends React.Component<null, StateTypes> {
   }
   componentDidMount(): void {
     this.getApiData(this.state.page);
-    this.setIntervalForGetApiData();
+    // this.setIntervalForGetApiData();
+    // this.createObserver();
+    window.addEventListener("scroll", this.handleScroll);
   }
+  componentWillUnmount(): void {
+    window.removeEventListener("scroll", this.handleScroll);
+  }
+
   getApiData = async (PN: number) => {
     try {
       this.setState({ loading: true });
@@ -52,6 +58,7 @@ class PostsDetails extends React.Component<null, StateTypes> {
       this.setState({ loading: false });
     }
   };
+  
   setIntervalForGetApiData = () => {
     setInterval(() => {
       this.getApiData(this.state.page);
@@ -62,6 +69,35 @@ class PostsDetails extends React.Component<null, StateTypes> {
     window.open(postUrl, "_blank");
   };
 
+  // createObserver = () => {
+  //   let observer:any;
+  //   let options = {
+  //     root: null,
+  //     rootMargin: "0px",
+  //     threshold: 1
+  //   };
+    
+  //   observer = new IntersectionObserver(this.handleIntersect, options);
+  //    console.log(observer);
+  // };
+  
+  
+  // handleIntersect = (entries:any, observer:any) => {
+  //   console.log('i am in it')
+  //   entries.map((entry:any) => console.log(entry));
+  // };
+
+  handleScroll = () => {
+    const { documentElement} = document;
+    const element = documentElement;
+
+    if (Math.abs(element.scrollHeight - element.clientHeight - element.scrollTop) <= 1) {
+      if (!this.state.loading) {
+        this.getApiData(this.state.page);
+      }
+    }
+  };
+      
   render() {
     return (
       <Box
