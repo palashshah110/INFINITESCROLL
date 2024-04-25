@@ -1,112 +1,24 @@
-import React, { ChangeEvent } from "react";
-import {
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  TextField,
-  ListItemAvatar,
-  Box,
-  Avatar,
-  Divider,
-} from "@mui/material";
-
-interface StateTypes {
-  postsData: {
-    title: string;
-    author: string;
-    url: string;
-    created_at: string;
-    _tags: string[];
-  }[];
-  page: number;
-  search: string;
-  loading: boolean;
-}
-class PostsDetails extends React.Component<null, StateTypes> {
-  intervalId: NodeJS.Timeout;
-  myRef: React.RefObject<any>;
-  constructor(props: any) {
-    super(props);
-    this.myRef = React.createRef();
-    this.state = {
-      postsData: [],
-      page: 0,
-      search: "",
-      loading: false,
+import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import React, { Component } from "react";
+import withRouter from "./WithRouter.tsx";
+interface propsTypes {
+  location: {
+    state: {
+      author: string;
+      title: string;
+      url: string;
+      created_at: string;
+      _tags: string[];
     };
-  }
-  componentDidMount(): void {
-    this.createObserver();
-  }
-
-  getApiData = async (PN: number) => {
-    try {
-      this.setState({ loading: true });
-      clearInterval(this.intervalId);
-      const response = await fetch(
-        `https://hn.algolia.com/api/v1/search_by_date?tags=story&page=${PN}`
-      );
-      const data = await response.json();
-      const newPosts = data.hits;
-      this.setState({
-        postsData: [...this.state.postsData, ...newPosts],
-        page: this.state.page + 1,
-        loading: false,
-      });
-      console.log(this.state.page);
-      this.setIntervalForGetApiData();
-    } catch (error) {
-      this.setState({ loading: false });
-    }
   };
+  navigate:(data:string) => void;
+}
 
-  setIntervalForGetApiData = () => {
-
-    clearInterval(this.intervalId);
-
-    this.intervalId = setInterval(() => {
-      this.getApiData(this.state.page);
-    }, 10000);
-  };
-
-  handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    this.setState({ search: event.target.value });
-  };
-
-  handleClick = (postUrl: string) => {
-    window.open(postUrl, "_blank");
-  };
-
-  handleIntersect = (entries: any) => {
-    const firstEntry = entries[0];
-    if (firstEntry.isIntersecting && !this.state.loading) {
-      this.getApiData(this.state.page);
-    }
-  };
-
-  createObserver = () => {
-    let observer = new IntersectionObserver(this.handleIntersect);
-    observer.observe(this.myRef.current);
-  };
-
-  // handleScroll = () => {
-  //   const { documentElement} = document;
-  //   const element = documentElement;
-
-  //   if (Math.abs(element.scrollHeight - element.clientHeight - element.scrollTop) <= 1) {
-  //     if (!this.state.loading) {
-  //       this.getApiData(this.state.page);
-  //     }
-  //   }
-  // };
-
+class PostsDetails extends Component<propsTypes> {
   render() {
-    const myapiData = this.state.postsData.filter(
-      (item) =>
-        item.title.toLowerCase().includes(this.state.search.toLowerCase()) ||
-        item.author.toLowerCase().includes(this.state.search.toLowerCase())
-    );
+    const {
+      author,title,url,created_at,_tags
+    } = this.props.location.state || 'hello';
     return (
       <Box
         component={"div"}
@@ -120,50 +32,32 @@ class PostsDetails extends React.Component<null, StateTypes> {
       >
         <Typography variant="h2" align="center" gutterBottom>
           Posts Details
-        </Typography>
-        <TextField
-          label="Search by title and author"
-          variant="outlined"
-          fullWidth
-          onChange={this.handleChange}
-          sx={{ marginBottom: "20px", width: "90%", ml: 5 }}
-        />
-        <List
-          sx={{
-            width: "90%",
-            bgcolor: "background.paper",
-            maxHeight: "600px",
-          }}
-        >
-          {myapiData?.map((post, idx) => {
-            const displayDate = new Date(post.created_at).toDateString();
-            return (
-              <React.Fragment key={idx}>
-                <ListItem
-                  alignItems="flex-start"
-                  button
-                  onClick={() => this.handleClick(post.url)}
-                >
-                  <ListItemAvatar>
-                    <Avatar />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={post.title}
-                    secondary={`Author: ${post.author}, Tags: ${post._tags.join(
-                      ", "
-                    )}, Created At: ${displayDate}`}
-                  />
-                </ListItem>
-                <Divider variant="inset" component="li" />
-              </React.Fragment>
-            );
-          })}
-          {this.state.loading && <ListItem>Loading...</ListItem>}
-          <ListItem ref={this.myRef}>Content Loaded</ListItem>
-        </List>
+        </Typography>        
+        <Card sx={{ minWidth: 275,mt:5 }}>
+              <CardContent>
+                <Typography sx={{ mb: 1.5 }}>
+                  Title: {title}
+                </Typography>
+                <Typography sx={{ mb: 1.5 }}>
+                Author: {author}
+                </Typography>
+                <Typography sx={{ mb: 1.5 }}>
+                Created At: {created_at}
+                </Typography>
+                <Typography sx={{ mb: 1.5 }}>
+                  Tags: {_tags?.join(', ')}
+                </Typography>
+                <Typography sx={{ mb: 1.5 }} title="linktitle">
+                  Link: <a href={url} target="_blank" rel="noreferrer">{url}</a>
+                </Typography>
+                <Typography sx={{ mt:2,textAlign:'center' }}>
+                  <Button color="info" variant="contained" onClick={()=>this.props.navigate('/')}>Go Back</Button>
+                </Typography>
+              </CardContent>
+            </Card>
       </Box>
     );
   }
 }
 
-export default PostsDetails;
+export default withRouter(PostsDetails);
