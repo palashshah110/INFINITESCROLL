@@ -27,19 +27,27 @@ describe("Post Component", () => {
         />
       </MemoryRouter>
     );
-    const linkbtn = screen.getByText("Link");
+    
     expect(screen.getByText("Title 1")).toBeInTheDocument();
+    
     expect(
       screen.getByText(
         "Author: Author 1, Tags: tag1, tag2, Created At: Invalid Date"
       )
     ).toBeInTheDocument();
+    
+    const linkbtn = screen.getByText("Link");
+    
     expect(linkbtn).toBeInTheDocument();
     const spanclickcheck = screen.getByTitle("spanclickcheck");
     fireEvent.click(spanclickcheck);
+
+
     const listbox = screen.getByTitle("listbox");
     fireEvent.click(listbox);
+    
     jest.useFakeTimers();
+    
     await waitFor(() => {
       expect(window.location.pathname).toBe("/");
       jest.clearAllTimers();

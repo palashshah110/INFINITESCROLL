@@ -4,6 +4,8 @@ import {
   screen,
   fireEvent,
   waitForElementToBeRemoved,
+  act,
+  waitFor,
 } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import Posts from "../Component/Posts.tsx";
@@ -66,5 +68,10 @@ describe("Post Component", () => {
     const searchInput = screen.getByLabelText("Search by title and author");
     fireEvent.change(searchInput, { target: { value: "hello" } });
     expect(searchInput).toHaveValue("hello");
+    
+    act(() => {
+      window.dispatchEvent(new Event("scroll"));
+    });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
   });
 });

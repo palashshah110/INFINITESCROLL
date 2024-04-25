@@ -29,6 +29,7 @@ describe("PostDetails Component", () => {
         <PostsDetails />
       </MemoryRouter>
     );
+    
     const TitleText = screen.getByText("Title: hello");
     const AuthorText = screen.getByText("Author: hello");
     const CreatedAtText = screen.getByText("Created At: hello");

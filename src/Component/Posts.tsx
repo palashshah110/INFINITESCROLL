@@ -93,9 +93,7 @@ class Posts extends React.Component<PropsType, StateTypes> {
           document.documentElement.scrollTop
       ) <= 1
     ) {
-      if (!this.state.loading) {
-        this.getApiData(this.state.page);
-      }
+      this.getApiData(this.state.page);
     }
   };
 
@@ -136,7 +134,11 @@ class Posts extends React.Component<PropsType, StateTypes> {
           {myapiData?.map((post, idx) => {
             return (
               <div key={idx} title="listDiv">
-                <Post post={post} navigate={this.props.navigate} intervalId={this.intervalId}/>
+                <Post
+                  post={post}
+                  navigate={this.props.navigate}
+                  intervalId={this.intervalId}
+                />
               </div>
             );
           })}
