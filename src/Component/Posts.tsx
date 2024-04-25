@@ -41,6 +41,9 @@ class Posts extends React.Component<PropsType, StateTypes> {
   }
 
   getApiData = async (PN: number) => {
+    if(this.state.loading){
+      return;
+    }
     try {
       this.setState({ loading: true });
       clearInterval(this.intervalId);
@@ -93,7 +96,9 @@ class Posts extends React.Component<PropsType, StateTypes> {
           document.documentElement.scrollTop
       ) <= 1
     ) {
-      this.getApiData(this.state.page);
+      // if(!this.state?.loading){
+        this.getApiData(this.state.page);
+      // }
     }
   };
 

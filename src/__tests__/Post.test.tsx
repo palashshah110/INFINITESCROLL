@@ -48,9 +48,13 @@ describe("Post Component", () => {
     
     jest.useFakeTimers();
     
+    
     await waitFor(() => {
       expect(window.location.pathname).toBe("/");
       jest.clearAllTimers();
     });
+
+
+
   });
 });

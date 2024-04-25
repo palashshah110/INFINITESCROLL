@@ -65,13 +65,14 @@ describe("Post Component", () => {
       "https://hn.algolia.com/api/v1/search_by_date?tags=story&page=1"
     );
 
-    const searchInput = screen.getByLabelText("Search by title and author");
-    fireEvent.change(searchInput, { target: { value: "hello" } });
-    expect(searchInput).toHaveValue("hello");
+    const searchIpt = screen.getByLabelText("Search by title and author");
+    fireEvent.change(searchIpt, { target: { value: "hello" } });
+    expect(searchIpt).toHaveValue("hello");
     
     act(() => {
       window.dispatchEvent(new Event("scroll"));
     });
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+
+    await waitFor(() => {expect(fetchMock).toHaveBeenCalledTimes(2)});
   });
 });
